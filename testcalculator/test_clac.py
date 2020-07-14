@@ -1,4 +1,5 @@
 import sys
+from unicodedata import decimal
 
 import pytest
 import yaml
@@ -21,11 +22,15 @@ def isstr(a, b):
 
 class CheckEnv:
 
+    @pytest.mark.run(order=1)
     def check_env(self, cmdoption):
+        if cmdoption is None:
+            print("环境参数错误，可选参数：test, dev, st")
+            assert False
         print("测试环境验证")
-        env, datas = cmdoption
-        ip = datas['env']['ip']
-        port = datas['env']['port']
+        env, data = cmdoption
+        ip = data['env']['ip']
+        port = data['env']['port']
         url = 'http://' + str(ip) + ":" + str(port)
         print(f"环境：{env}，地址：{url}")
 
@@ -35,8 +40,8 @@ class TestCalc:
     def setup_class(self):
         self.cal = Calculator()
 
-    @pytest.mark.run(order=1)
-    @pytest.mark.dependency(name='add')
+    @pytest.mark.run(order=2)
+    @pytest.mark.dependency(name="add")
     # @pytest.mark.xfail(reason="deliberate fail")
     @pytest.mark.parametrize('read', c, ids=ids_add, indirect=True)
     def check_add(self, read):
@@ -45,10 +50,9 @@ class TestCalc:
             raise TypeError
         else:
             temp_result = self.cal.add(read[0], read[1])
-            # assert temp_result == read[2]
-            assert True
+            assert temp_result == read[2]
 
-    @pytest.mark.run(order=2)
+    @pytest.mark.run(order=3)
     @pytest.mark.dependency(depends=["add"])
     @pytest.mark.parametrize('read', c, ids=ids_sub, indirect=True)
     def check_sub(self, read):
@@ -59,8 +63,8 @@ class TestCalc:
             temp_result = self.cal.sub(read[0], read[1])
             assert temp_result == read[3]
 
-    @pytest.mark.run(order=3)
-    @pytest.mark.dependency(name='mul')
+    @pytest.mark.run(order=4)
+    @pytest.mark.dependency(name="mul")
     @pytest.mark.parametrize('read', c, ids=ids_mul, indirect=True)
     def check_mul(self, read):
         print(f"计算：{read[0]} * {read[1]}，预期结果为：{read[4]}")
@@ -70,7 +74,7 @@ class TestCalc:
             temp_result = self.cal.mul(read[0], read[1])
             assert temp_result == read[4]
 
-    @pytest.mark.run(order=4)
+    @pytest.mark.run(order=5)
     @pytest.mark.dependency(depends=["mul"])
     @pytest.mark.parametrize('read', c, ids=ids_div, indirect=True)
     def check_div(self, read):

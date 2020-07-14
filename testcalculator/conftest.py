@@ -50,8 +50,9 @@ def cmdoption(request):
     elif myenv == 'st':
         myenvpath = '../datas/st.yml'
     else:
-        print("输入环境参数有误，使用默认环境:test")
-        myenvpath = '../datas/test.yml'
+        return None
+        # print("输入环境参数有误，使用默认环境:test")
+        # myenvpath = '../datas/test.yml'
     with open(myenvpath) as f:
         datas = yaml.safe_load(f)
     return myenv, datas
