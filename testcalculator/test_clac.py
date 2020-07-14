@@ -5,6 +5,13 @@ from testcalculator.calc import Calculator
 c = yaml.safe_load(open("./data.yaml", encoding='utf-8'))
 
 
+def isstr(self, a, b):
+    if isinstance(a, str):
+        return 0
+    if isinstance(b, str):
+        return 0
+
+
 class TestCalc:
 
     def setup_class(self):
