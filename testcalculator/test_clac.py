@@ -1,5 +1,5 @@
 import sys
-from unicodedata import decimal
+from logging import exception
 
 import pytest
 import yaml
@@ -11,13 +11,6 @@ with open("./data.yaml", encoding='utf-8') as f:
     ids_sub = [f"{c[i][0]} - {c[i][1]}" for i in range(len(c))]
     ids_mul = [f"{c[i][0]} × {c[i][1]}" for i in range(len(c))]
     ids_div = [f"{c[i][0]} ÷ {c[i][1]}" for i in range(len(c))]
-
-
-def isstr(a, b):
-    if isinstance(a, str):
-        return 0
-    if isinstance(b, str):
-        return 0
 
 
 class CheckEnv:
@@ -46,44 +39,46 @@ class TestCalc:
     @pytest.mark.parametrize('read', c, ids=ids_add, indirect=True)
     def check_add(self, read):
         print(f"计算：{read[0]} + {read[1]}，预期结果为：{read[2]}")
-        if isstr(read[0], read[1]) == 0:
-            raise TypeError
-        else:
+        try:
             temp_result = self.cal.add(read[0], read[1])
             assert temp_result == read[2]
+        except Exception as e:
+            print(e)
+            assert False
 
     @pytest.mark.run(order=3)
     @pytest.mark.dependency(depends=["add"])
     @pytest.mark.parametrize('read', c, ids=ids_sub, indirect=True)
     def check_sub(self, read):
         print(f"计算：{read[0]} - {read[1]}，预期结果为：{read[3]}")
-        if isstr(read[0], read[1]) == 0:
-            raise TypeError
-        else:
+        try:
             temp_result = self.cal.sub(read[0], read[1])
             assert temp_result == read[3]
+        except Exception as e:
+            print(e)
+            assert False
 
     @pytest.mark.run(order=4)
     @pytest.mark.dependency(name="mul")
     @pytest.mark.parametrize('read', c, ids=ids_mul, indirect=True)
     def check_mul(self, read):
         print(f"计算：{read[0]} * {read[1]}，预期结果为：{read[4]}")
-        if isstr(read[0], read[1]) == 0:
-            raise TypeError
-        else:
+        try:
             temp_result = self.cal.mul(read[0], read[1])
             assert temp_result == read[4]
+        except Exception as e:
+            print(e)
+            assert False
 
     @pytest.mark.run(order=5)
     @pytest.mark.dependency(depends=["mul"])
     @pytest.mark.parametrize('read', c, ids=ids_div, indirect=True)
     def check_div(self, read):
         print(f"计算：{read[0]} ÷ {read[1]}，预期结果为：{read[5]}")
-        if isstr(read[0], read[1]) == 0:
-            raise TypeError
-        elif read[1] == 0:
-            raise ZeroDivisionError
-        else:
+        try:
             temp_result = self.cal.div(read[0], read[1])
             assert temp_result == read[5]
+        except Exception as e:
+            print(e)
+            assert False
 
